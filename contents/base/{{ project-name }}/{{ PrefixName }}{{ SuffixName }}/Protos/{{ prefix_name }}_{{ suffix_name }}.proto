@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+option csharp_namespace = "{{ PrefixName }}{{ SuffixName }}.Proto";
+
+package {{ prefix_name }}_{{ suffix_name }};
+
+service {{ PrefixName }} {
+  rpc Create{{ PrefixName }} (Create{{ PrefixName }}Request) returns ({{ PrefixName }}Entity);
+  rpc Get{{ PrefixName }} (Get{{ PrefixName }}Request) returns ({{ PrefixName }}Entity);
+  rpc List{{ PrefixName }}s (List{{ PrefixName }}sRequest) returns (List{{ PrefixName }}sResponse);
+  rpc Update{{ PrefixName }} (Update{{ PrefixName }}Request) returns ({{ PrefixName }}Entity);
+}
+
+message {{ PrefixName }}Entity {
+  string id = 1;
+  string display_name = 2;
+}
+
+message Create{{ PrefixName }}Request {
+  string display_name = 1;
+}
+
+message Get{{ PrefixName }}Request {
+  string id = 1;
+}
+
+message List{{ PrefixName }}sRequest {}
+
+message List{{ PrefixName }}sResponse {
+  repeated {{ PrefixName }}Entity items = 1;
+  string next_page_token = 2;
+}
+
+message Update{{ PrefixName }}Request {
+  string id = 1;
+  string display_name = 2;
+}
