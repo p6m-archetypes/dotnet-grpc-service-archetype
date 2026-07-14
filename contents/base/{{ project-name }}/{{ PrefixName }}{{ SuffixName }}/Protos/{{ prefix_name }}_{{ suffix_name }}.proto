@@ -9,6 +9,7 @@ service {{ PrefixName }} {
   rpc Get{{ PrefixName }} (Get{{ PrefixName }}Request) returns ({{ PrefixName }}Entity);
   rpc List{{ PrefixName }}s (List{{ PrefixName }}sRequest) returns (List{{ PrefixName }}sResponse);
   rpc Update{{ PrefixName }} (Update{{ PrefixName }}Request) returns ({{ PrefixName }}Entity);
+  rpc Delete{{ PrefixName }} (Delete{{ PrefixName }}Request) returns (Delete{{ PrefixName }}Response);
 }
 
 message {{ PrefixName }}Entity {
@@ -35,3 +36,9 @@ message Update{{ PrefixName }}Request {
   string id = 1;
   string display_name = 2;
 }
+
+message Delete{{ PrefixName }}Request {
+  string id = 1;
+}
+
+message Delete{{ PrefixName }}Response {}

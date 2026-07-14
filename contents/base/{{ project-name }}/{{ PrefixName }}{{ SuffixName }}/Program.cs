@@ -4,6 +4,10 @@ using {{ PrefixName }}{{ SuffixName }}.Services;
 {% if persistence ~= 'None' or cache ~= 'None' or messaging ~= 'None' or has_s3 or has_azure_blob %}
 using {{ PrefixName }}{{ SuffixName }}.Resources;
 {% endif %}
+{% if persistence ~= 'None' %}
+using Microsoft.EntityFrameworkCore;
+{% endif %}
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Prometheus;
@@ -45,7 +49,12 @@ try
         });
 
     builder.Services.AddGrpc();
-    builder.Services.AddGrpcHealthChecks();
+    // A baseline liveness check so grpc.health.v1 reports SERVING (not UNKNOWN) — required by
+    // k8s gRPC probes and anything else that gates on the standard health protocol.
+    builder.Services.AddGrpcHealthChecks()
+        .AddCheck("self", () => HealthCheckResult.Healthy());
+    // Server reflection: schema discovery for dynamic clients (grpcurl, prova, GUIs).
+    builder.Services.AddGrpcReflection();
 
 {% if persistence ~= 'None' %}
     if (!builder.Environment.IsEnvironment("Testing"))
@@ -86,11 +95,22 @@ try
     // gRPC service and gRPC health check protocol on service_port
     app.MapGrpcService<{{ PrefixName }}ServiceImpl>();
     app.MapGrpcHealthChecksService();
+    app.MapGrpcReflectionService();
 
     // HTTP management endpoints: health + Prometheus metrics on management_port
     app.MapGet("/health/readiness", () => Results.Ok(new { status = "ok" }));
     app.MapGet("/health/liveness", () => Results.Ok(new { status = "ok" }));
     app.UseMetricServer(settings.ManagementPort); // prometheus-net: GET /metrics on management_port
+{% if persistence ~= 'None' %}
+
+    // Sample scaffold: create the schema for the Item entity (Domain/Item.cs). Replace with real
+    // migrations as your domain model solidifies.
+    if (!builder.Environment.IsEnvironment("Testing"))
+    {
+        using (var scope = app.Services.CreateScope())
+            scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.EnsureCreated();
+    }
+{% endif %}
 
     app.Run();
 }

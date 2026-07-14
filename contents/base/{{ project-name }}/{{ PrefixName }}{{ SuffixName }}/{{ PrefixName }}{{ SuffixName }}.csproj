@@ -13,12 +13,14 @@
     <PackageReference Include="Serilog.Formatting.Compact" Version="3.*" />
     <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.*" />
     <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.*" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.GrpcNetClient" Version="1.*" />
+    <!-- No stable release exists yet (beta line only); float on the prerelease range. -->
+    <PackageReference Include="OpenTelemetry.Instrumentation.GrpcNetClient" Version="1.*-*" />
     <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.*" />
     <PackageReference Include="prometheus-net.AspNetCore" Version="8.*" />
     <!-- gRPC -->
     <PackageReference Include="Grpc.AspNetCore" Version="2.*" />
     <PackageReference Include="Grpc.AspNetCore.HealthChecks" Version="2.*" />
+    <PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.*" />
 {% if persistence == 'PostgreSQL' %}
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.*" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.*" />
