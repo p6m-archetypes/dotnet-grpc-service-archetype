@@ -27,8 +27,8 @@ local function answers_with(extra)
   return out
 end
 
--- prefix Example / suffix Service → proto package example_service, service Example.
-local SVC = "example_service.Example"
+-- prefix Example / suffix Service → proto package example_service, service ExampleService.
+local SVC = "example_service.ExampleService"
 
 local SCAFFOLD_FILES = {
   "ExampleService/Resources/Persistence.cs",
