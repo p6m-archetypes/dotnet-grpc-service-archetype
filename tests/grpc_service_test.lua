@@ -3,8 +3,10 @@
 ---
 --- The BEHAVIORAL bar — CRUD through the production image, the platform env contract, health/
 --- metrics/structured logs, both name shapes — lives in tests/standards_test.lua (the shared
---- p6m standards suite), fully containerized: docker is the only requirement. The `build_steps`
---- here are gated on a host SDK and skip cleanly where it's absent (CI compiles them).
+--- p6m standards suite), fully containerized: docker is the only requirement. Compile coverage
+--- is containerized too: the standards SUT image builds compile the persistence variants, and
+--- the hollow rendering is proven compilable by building its production Dockerfile here — no
+--- host SDK is ever required.
 ---
 --- Run from the archetype repo root (uses ./prova.toml):   prova
 
@@ -59,16 +61,21 @@ for _, persistence in ipairs({ "PostgreSQL", "MySQL" }) do
       ".github/workflows/build.yaml",
     },
     yaml_globs = { ".platform/kubernetes/**/*.yaml" },
-    requires = { "dotnet >= 9" },
-    build_steps = { "dotnet build ExampleService.sln" },
   })
 end
 
 -- The hollow rendering stays hollow: stub handlers, no scaffold files.
-archetect.verify{
+local none_project = prova.fixture("dotnet-grpc[None]:project", Scope.File, function(ctx)
+  return archetect.render{
+    source = SRC,
+    answers = answers_with{ persistence = "None" },
+    destination = ctx:tempdir(),
+    defaults = true,
+  }
+end)
+
+archetect.verify(none_project, {
   name = "dotnet-grpc[None]",
-  source = SRC,
-  answers = answers_with{ persistence = "None" },
   project_dir = "example-service",
   expected_files = {
     "ExampleService.sln",
@@ -76,6 +83,18 @@ archetect.verify{
     "ExampleService/Protos/example_service.proto",
   },
   absent_files = SCAFFOLD_FILES,
-  requires = { "dotnet >= 9" },
-  build_steps = { "dotnet build ExampleService.sln" },
-}
+})
+
+-- Containerized compile proof for the hollow rendering: the persistence variants are compiled by
+-- the standards suite's SUT image builds; None never boots there, so prove it compiles by
+-- building its production Dockerfile (build success = it compiles; no boot needed).
+prova.group("dotnet-grpc[None]:image", { requires = { "docker" } }, function(g)
+  g:test("production image builds (compiles the hollow rendering)", function(t)
+    local root = t:use(none_project):dir("example-service")
+    local image = docker.build{
+      context = root.path,
+      dockerfile = ".platform/docker/prd/Dockerfile",
+    }
+    t:expect(image, "built image ref"):never():is_empty()
+  end)
+end)
