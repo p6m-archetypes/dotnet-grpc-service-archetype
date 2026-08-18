@@ -148,7 +148,7 @@ try
     app.UseMetricServer(settings.ManagementPort); // prometheus-net: GET /metrics on management_port
 {% if persistence ~= 'None' %}
 
-    // Sample scaffold: create the schema for the Item entity (Domain/Item.cs). Replace with real
+    // Sample scaffold: create the schema for the {{ EntityName }} entity (Domain/{{ EntityName }}.cs). Replace with real
     // migrations as your domain model solidifies.
     if (!builder.Environment.IsEnvironment("Testing"))
     {

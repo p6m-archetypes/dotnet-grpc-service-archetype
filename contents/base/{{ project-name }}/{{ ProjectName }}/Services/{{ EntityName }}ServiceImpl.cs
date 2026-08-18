@@ -9,8 +9,8 @@ using {{ ProjectName }}.Resources;
 namespace {{ ProjectName }}.Services;
 
 {% if persistence ~= 'None' %}
-// CRUD over the persisted Item scaffold entity (Domain/Item.cs) — the round trip a black-box
-// test can prove end-to-end. Replace Item and these handlers as your real domain lands.
+// CRUD over the persisted {{ EntityName }} scaffold entity (Domain/{{ EntityName }}.cs) — the round trip a black-box
+// test can prove end-to-end. Replace {{ EntityName }} and these handlers as your real domain lands.
 // The base class is qualified through the Proto namespace: the generated service container
 // class {{ ProjectName }} shares its name with the root namespace, so the bare
 // name resolves to the namespace instead of the class.
@@ -23,8 +23,8 @@ public class {{ EntityName }}ServiceImpl : Proto.{{ ProjectName }}.{{ ProjectNam
     public override async Task<{{ EntityName }}> Create{{ EntityName }}(
         Create{{ EntityName }}Request request, ServerCallContext context)
     {
-        var item = new Item { Id = Guid.NewGuid(), DisplayName = request.DisplayName };
-        _db.Items.Add(item);
+        var item = new {{ EntityName }} { Id = Guid.NewGuid(), DisplayName = request.DisplayName };
+        _db.{{ EntityName }}s.Add(item);
         await _db.SaveChangesAsync(context.CancellationToken);
         return ToEntity(item);
     }
@@ -37,8 +37,8 @@ public class {{ EntityName }}ServiceImpl : Proto.{{ ProjectName }}.{{ ProjectNam
         List{{ EntityName }}sRequest request, ServerCallContext context)
     {
         var response = new List{{ EntityName }}sResponse();
-        var items = await _db.Items.OrderBy(i => i.CreatedAt).ToListAsync(context.CancellationToken);
-        response.Items.AddRange(items.Select(ToEntity));
+        var {{ entity_name }}s = await _db.{{ EntityName }}s.OrderBy(i => i.CreatedAt).ToListAsync(context.CancellationToken);
+        response.{{ EntityName }}s.AddRange({{ entity_name }}s.Select(ToEntity));
         return response;
     }
 
@@ -55,22 +55,22 @@ public class {{ EntityName }}ServiceImpl : Proto.{{ ProjectName }}.{{ ProjectNam
         Delete{{ EntityName }}Request request, ServerCallContext context)
     {
         var item = await Find(request.Id, context);
-        _db.Items.Remove(item);
+        _db.{{ EntityName }}s.Remove(item);
         await _db.SaveChangesAsync(context.CancellationToken);
         return new Delete{{ EntityName }}Response();
     }
 
-    private async Task<Item> Find(string id, ServerCallContext context)
+    private async Task<{{ EntityName }}> Find(string id, ServerCallContext context)
     {
         if (!Guid.TryParse(id, out var parsed))
             throw new RpcException(new Status(StatusCode.InvalidArgument, $"'{id}' is not a valid id"));
-        var item = await _db.Items.FindAsync(new object[] { parsed }, context.CancellationToken);
+        var item = await _db.{{ EntityName }}s.FindAsync(new object[] { parsed }, context.CancellationToken);
         if (item is null)
             throw new RpcException(new Status(StatusCode.NotFound, $"no item with id '{id}'"));
         return item;
     }
 
-    private static {{ EntityName }} ToEntity(Item item) =>
+    private static {{ EntityName }} ToEntity({{ EntityName }} item) =>
         new() { Id = item.Id.ToString(), DisplayName = item.DisplayName };
 }
 {% else %}
