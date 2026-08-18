@@ -47,7 +47,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Protobuf Include="Protos/{{ prefix_name }}_{{ suffix_name }}.proto" GrpcServices="Server" />
+    <Protobuf Include="Protos/{{ project_name }}.proto" GrpcServices="Server" />
   </ItemGroup>
 
 </Project>

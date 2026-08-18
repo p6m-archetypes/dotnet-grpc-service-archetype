@@ -1,8 +1,8 @@
 using System.Net;
-using {{ PrefixName }}{{ SuffixName }};
-using {{ PrefixName }}{{ SuffixName }}.Services;
+using {{ ProjectName }};
+using {{ ProjectName }}.Services;
 {% if persistence ~= 'None' or cache ~= 'None' or messaging ~= 'None' or has_s3 or has_azure_blob %}
-using {{ PrefixName }}{{ SuffixName }}.Resources;
+using {{ ProjectName }}.Resources;
 {% endif %}
 {% if persistence ~= 'None' %}
 using Microsoft.EntityFrameworkCore;
@@ -138,7 +138,7 @@ try
     var app = builder.Build();
 
     // gRPC service and gRPC health check protocol on service_port
-    app.MapGrpcService<{{ PrefixName }}ServiceImpl>();
+    app.MapGrpcService<{{ EntityName }}ServiceImpl>();
     app.MapGrpcHealthChecksService();
     app.MapGrpcReflectionService();
 

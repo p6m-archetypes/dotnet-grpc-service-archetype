@@ -1,4 +1,4 @@
-namespace {{ PrefixName }}{{ SuffixName }}.Domain;
+namespace {{ ProjectName }}.Domain;
 
 // Sample scaffold entity proving the persistence round trip end-to-end.
 // Replace with your real domain model (and update Services/*ServiceImpl.cs to match).
