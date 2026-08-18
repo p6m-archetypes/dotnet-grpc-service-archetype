@@ -28,7 +28,7 @@ message Get{{ EntityName }}Request {
 message List{{ EntityName }}sRequest {}
 
 message List{{ EntityName }}sResponse {
-  repeated {{ EntityName }} {{ entity_name }}s = 1;
+  repeated {{ EntityName }} items = 1;
   string next_page_token = 2;
 }
 

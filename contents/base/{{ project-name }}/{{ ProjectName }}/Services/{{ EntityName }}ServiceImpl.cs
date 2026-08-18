@@ -23,7 +23,7 @@ public class {{ EntityName }}ServiceImpl : Proto.{{ ProjectName }}.{{ ProjectNam
     public override async Task<{{ EntityName }}> Create{{ EntityName }}(
         Create{{ EntityName }}Request request, ServerCallContext context)
     {
-        var item = new {{ EntityName }} { Id = Guid.NewGuid(), DisplayName = request.DisplayName };
+        var item = new {{ EntityName }}Entity { Id = Guid.NewGuid(), DisplayName = request.DisplayName };
         _db.{{ EntityName }}s.Add(item);
         await _db.SaveChangesAsync(context.CancellationToken);
         return ToEntity(item);
@@ -38,7 +38,7 @@ public class {{ EntityName }}ServiceImpl : Proto.{{ ProjectName }}.{{ ProjectNam
     {
         var response = new List{{ EntityName }}sResponse();
         var {{ entity_name }}s = await _db.{{ EntityName }}s.OrderBy(i => i.CreatedAt).ToListAsync(context.CancellationToken);
-        response.{{ EntityName }}s.AddRange({{ entity_name }}s.Select(ToEntity));
+        response.Items.AddRange({{ entity_name }}s.Select(ToEntity));
         return response;
     }
 
@@ -60,7 +60,7 @@ public class {{ EntityName }}ServiceImpl : Proto.{{ ProjectName }}.{{ ProjectNam
         return new Delete{{ EntityName }}Response();
     }
 
-    private async Task<{{ EntityName }}> Find(string id, ServerCallContext context)
+    private async Task<{{ EntityName }}Entity> Find(string id, ServerCallContext context)
     {
         if (!Guid.TryParse(id, out var parsed))
             throw new RpcException(new Status(StatusCode.InvalidArgument, $"'{id}' is not a valid id"));
@@ -70,7 +70,7 @@ public class {{ EntityName }}ServiceImpl : Proto.{{ ProjectName }}.{{ ProjectNam
         return item;
     }
 
-    private static {{ EntityName }} ToEntity({{ EntityName }} item) =>
+    private static {{ EntityName }} ToEntity({{ EntityName }}Entity item) =>
         new() { Id = item.Id.ToString(), DisplayName = item.DisplayName };
 }
 {% else %}
